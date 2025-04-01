@@ -48,6 +48,19 @@ for instruction in seed_instructions + augment_instructions_processed:
 with jsonlines.open("./output/eval_func_rft.jsonl", "w") as f:
     for each in outputs:
         f.write(each)
+        
+with jsonlines.open("./output/eval_func_rft_volc_deepseek.jsonl", "w") as f:
+    for idx, output in enumerate(outputs):
+        for i in range(5):
+            output_final = {
+                "custom_id": f'{idx}_seed_{i}', 
+                "body": {
+                    "messages": [{"role": "user", "content": output['prompt']}],
+                    "max_tokens": 16000,
+                    "seed": i,
+                }
+            }
+            f.write(output_final)
 
 
 '''
@@ -56,20 +69,20 @@ Please TODO:
 please generate K verification functions for each sample by supervision model in eval_func_rft.jsonl
 
 '''
-jsonlines_file = f'./output/eval_func_rft_deepseek.jsonl'
-print('start at:')
-print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-for output in tqdm(outputs):
-    for i in tqdm(range(5)):
-        reasoning, answser = generate(prompt=output['prompt'], seed=i)
-        with jsonlines.open(jsonlines_file, mode='a') as writer:
-            writer.write({
-                'seed': i,
-                'prompt': output['prompt'],
-                'instruction': output['instruction'],
-                'reasoning': reasoning,
-                'answer': answser
-            })
+# jsonlines_file = f'./output/eval_func_rft_deepseek.jsonl'
+# print('start at:')
+# print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+# for output in tqdm(outputs):
+#     for i in tqdm(range(5)):
+#         reasoning, answser = generate(prompt=output['prompt'], seed=i)
+#         with jsonlines.open(jsonlines_file, mode='a') as writer:
+#             writer.write({
+#                 'seed': i,
+#                 'prompt': output['prompt'],
+#                 'instruction': output['instruction'],
+#                 'reasoning': reasoning,
+#                 'answer': answser
+#             })
             
-print('finish at:')
-print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+# print('finish at:')
+# print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
