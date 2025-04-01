@@ -21,16 +21,42 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 
 random.seed(0)
-
+def fix_json_booleans(json_str):
+    """
+    Fixes incorrectly capitalized boolean values in JSON strings.
+    Replaces 'True' with 'true' and 'False' with 'false' only when they appear as JSON values.
+    
+    Args:
+        json_str (str): The JSON string to fix
+        
+    Returns:
+        str: The fixed JSON string
+    """
+    # Instead of using complex lookbehinds, we'll capture the key pattern and replace only the boolean part
+    
+    # Pattern explanation:
+    # 1. We capture (["'].*?["']\s*:\s*) - This is the key and colon with whitespace
+    # 2. We capture (True|False) - The boolean value with incorrect capitalization
+    # 3. We ensure it's followed by a valid JSON separator or end using positive lookahead
+    
+    # For True values
+    pattern_true = r'(["\'](.*?)["\']\s*:\s*)(True)(?=\s*[,}\]]|$)'
+    fixed_str = re.sub(pattern_true, r'\1true', json_str)
+    
+    # For False values
+    pattern_false = r'(["\'](.*?)["\']\s*:\s*)(False)(?=\s*[,}\]]|$)'
+    fixed_str = re.sub(pattern_false, r'\1false', fixed_str)
+    
+    return fixed_str
 
 # test gpt4
 
-os.environ['NLTK_DATA'] = 'your nltk_data data path'
-logging.getLogger('nltk').setLevel(logging.CRITICAL)
-from nltk import data
-data.path.append('your nltk_data data path')
+# os.environ['NLTK_DATA'] = 'your nltk_data data path'
+# logging.getLogger('nltk').setLevel(logging.CRITICAL)
+# from nltk import data
+# data.path.append('your nltk_data data path')
 
-path="./sample_data/eval_func_rft.jsonl"
+path="./output/eval_func_volc_deepseek_results.jsonl"
 
 
 results = list(jsonlines.open(path))
@@ -38,21 +64,18 @@ results = list(jsonlines.open(path))
 
 print("Preprocess vertification functions")
 
+from langchain_core.output_parsers import JsonOutputParser
+js_parser = JsonOutputParser()
 
 collect_packages = []
-for result in results:
-    res = result['gpt-answer']
+broken_res = []
+for result in tqdm(results):
+    res = result['response']['body']['choices'][0]['message']['content']
     eval_funcs, test_cases = [], []
-    for each in res:
-        try:
-            json_dict = re.findall(r'```json(.*?)```', each, re.DOTALL)[0].strip()
-        except IndexError:
-            continue
-    
-    # func rejection
     try:
-        res_dict = json.loads(json_dict)
-    except json.JSONDecodeError:
+        res_dict = js_parser.parse(fix_json_booleans(res))
+    except:
+        broken_res.append(res)
         continue
         
     func = res_dict['func']
@@ -67,9 +90,8 @@ for result in results:
     for line in func.split('\n'):
         if 'import' in line or 'download' in line or 'requests' in line:
             collect_packages.append(line)
+
 print(list(set(collect_packages)))
-
-
 
 
 
@@ -80,38 +102,33 @@ def timeout_handler(signum, frame):
 
 filter_results = []
 for result in tqdm(results):
-    res = result['gpt-answer']
+    res = result['response']['body']['choices'][0]['message']['content']
     eval_funcs, test_cases = [], []
-    for each in tqdm(res):
-        try:
-            json_dict = re.findall(r'```json(.*?)```', each, re.DOTALL)[0].strip()
-        except IndexError:
-            continue
+    
+    try:
+        res_dict = js_parser.parse(fix_json_booleans(res))
+    except:
+        continue
+    
+    # func rejection
+    func = res_dict['func']
+    func = func.strip()
+    func = '\n'.join([each for each in func.split('\n') if 'download' not in each and 'requests' not in each])
+    try:
+        exec(func)
+    except Exception:
+        continue
+    eval_funcs.append(func)
 
+    for each in res_dict['cases']:
         try:
-            res_dict = json.loads(json_dict)
-        except json.JSONDecodeError:
-            continue
-
-        # func rejection
-        func = res_dict['func']
-        func = func.strip()
-        func = '\n'.join([each for each in func.split('\n') if 'download' not in each and 'requests' not in each])
-        try:
-            exec(func)
-        except Exception:
-            continue
-        eval_funcs.append(func)
-
-        for each in res_dict['cases']:
-            try:
-                test_cases.append((each['input'], each['output']))
-            except KeyError:
-                print(each)
+            test_cases.append((each['input'], each['output']))
+        except KeyError:
+            print(each)
     eval_funcs = list(set(eval_funcs))
     test_cases = list(map(json.loads, set(map(json.dumps, test_cases))))
-    if len(eval_funcs) < 3 or len(test_cases) < 10:
-        continue
+    # if len(eval_funcs) < 3 or len(test_cases) < 10:
+    #     continue
 
     filtered_test_cases = []
 
