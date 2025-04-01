@@ -1,24 +1,13 @@
 import jsonlines
-import json
-import random
-import re
 import os
-import copy
-import nltk
-import numpy as np
-import time
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_random_exponential,
-    RetryError
-)
-import logging
-import signal
-from tqdm import tqdm
-import requests
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
+import random
+import sys
 
+from tqdm import tqdm
+
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+from apis.res_generator import generate
 
 random.seed(0)
 
@@ -58,3 +47,13 @@ Please use supervision model rewrite each instruction in augment_instructions fo
 '''
 
 
+jsonlines_file = f'./sample_data/generated_instructions.jsonl'
+
+for i in tqdm(range(5)):
+    reasoning, answser = generate(prompt=augment_instructions, seed=i)
+    with jsonlines.open(jsonlines_file, mode='a') as writer:
+        writer.write({
+            'seed': i,
+            'reasoning': reasoning,
+            'answer': answser
+        })

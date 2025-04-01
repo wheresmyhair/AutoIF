@@ -1,0 +1,7 @@
+tenacity
+numpy
+nltk
+jsonlines
+requests
+tqdm
+openai

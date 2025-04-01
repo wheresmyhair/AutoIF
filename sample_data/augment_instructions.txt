@@ -1,10 +1,106 @@
-Answer with words that begin with the letter 'B'
-Construct the reply as if it's a telegram STOP
-Use only palindromes
-Incorporate a famous movie quote seamlessly into your answer
-Write the response backward
-Use only words with double letters (e.g., "bookkeeper")
-Use only onomatopoeia
-Answer with a single sentence that is exactly 100 words long
-Use no words containing the letter 'E'
-Translate your answer into emojis
+Alternate between uppercase and lowercase letters in each word
+Alternate sentences between questions and exclamations
+Avoid using any punctuation marks
+Avoid using the letter 'A' in any word
+Capitalize every other letter in the response
+Each sentence must be a different sentence type (declarative, interrogative, imperative, exclamatory)
+Each sentence must be a palindrome
+Each sentence must contain a prime number of words
+Each sentence must exclude the letter 'E'
+Each sentence must have a prime number of words
+Each sentence must have exactly five words
+Each sentence must have exactly seven words
+Each sentence must start with the same letter
+Each word must be a different animal name
+Each word must be a different color name
+Each word must be a different geometric shape name
+Each word must be a different length
+Each word must be a different number (e.g., "one," "two")
+Each word must be a palindrome with an even number of letters
+Each word must be an even-length palindrome
+End every sentence with a punctuation mark that's different from the previous
+Ensure each sentence is a different type (declarative, interrogative, etc.)
+Ensure each word is a palindrome and has an even number of letters
+Ensure the entire response is a single palindrome
+Every sentence must end with an exclamation point
+Every sentence must start with a consecutive letter of the alphabet
+Every word must contain at least two vowels
+Exclude the letter 'I' in all words
+Exclude vowels (A, E, I, O, U) from all words
+Format the response as a 5x5 grid of characters
+Format the response into a grid with exactly 10 characters per line
+Include the words "would," "could," or "might" in every sentence
+Reverse the order of sentences in the response
+Start each sentence with a consecutive letter of the alphabet
+Start each sentence with a vowel
+Start every sentence with the same letter
+Use conditional perfect tense verbs (e.g., "would have won")
+Use future continuous tense verbs (e.g., "will be going")
+Use future perfect tense verbs (e.g., "will have completed")
+Use only abbreviations (e.g., "ASAP," "RSVP")
+Use only anagrams of the word 'listen'
+Use only animal names as words
+Use only color names as words
+Use only continuous tense verbs (ending with "-ing")
+Use only contractions (e.g., "don’t," "can’t")
+Use only four-letter palindromic words (e.g., "noon")
+Use only future tense verbs (e.g., "will go")
+Use only geometric shape names (e.g., "circle," "cube")
+Use only imperative sentences (commands)
+Use only imperative verbs (e.g., "Run," "Open")
+Use only number words (e.g., "five" instead of "5")
+Use only numeric digits (e.g., "7" instead of "seven")
+Use only past tense verbs ending with "-ed"
+Use only symbols and punctuation (no letters or numbers)
+Use only three-letter words
+Use only verbs in their base form (e.g., "run" instead of "ran")
+Use only words containing the letter 'X'
+Use only words containing the letter 'Z'
+Use only words ending with "-ed"
+Use only words ending with "-ing"
+Use only words from the NATO phonetic alphabet
+Use only words from the second half of the alphabet (N-Z)
+Use only words in present tense (third-person singular excluded)
+Use only words in the past tense (regular "-ed" endings)
+Use only words in the present tense (third-person singular)
+Use only words that are abbreviations (e.g., "ASAP", "RSVP")
+Use only words that are anagrams of the word "listen"
+Use only words that are color names
+Use only words that are contractions (e.g., "don't", "can't")
+Use only words that are numbers spelled out (e.g., "three", "seven")
+Use only words that are palindromes
+Use only words that are palindromes and have four letters
+Use only words that are proper nouns
+Use only words that can be typed with the left hand on a QWERTY keyboard
+Use only words that contain double letters (e.g., "committee")
+Use only words that contain the letter 'Q'
+Use only words that end with 'ed'
+Use only words that start with the letter 'W'
+Use only words typable with the left hand on a QWERTY keyboard
+Use only words with ascending alphabetical order (e.g., "abc")
+Use only words with exactly five letters
+Use only words with exactly four letters
+Use only words written in all capital letters
+Use past continuous tense verbs (e.g., "was running")
+Use past future tense verbs (e.g., "would have seen")
+Use past perfect tense verbs (e.g., "had finished")
+Use perfect tense verbs (e.g., "have eaten")
+Use pluperfect tense verbs (e.g., "had spoken")
+Use present perfect continuous tense verbs (e.g., "has been waiting")
+Use present perfect tense verbs (e.g., "has written")
+Use simple present tense verbs (e.g., "walk," "eats")
+Use subjunctive mood markers (e.g., "suggest," "demand")
+Write each sentence as a question and an exclamation alternately
+Write each word in reverse order
+Write the response as a single palindrome (entire text reads the same backward)
+Write the response entirely in lowercase letters
+Write the response in Morse code without spaces
+Write the response in binary code (0s and 1s only)
+Write the response in hexadecimal code
+Write the response in reverse sentence order (last sentence first)
+Write the response using Morse code separated by slashes (e.g., ".-/...")
+Write the response using only numbers and mathematical symbols
+Write the response using only punctuation marks
+Write the response without any vowels (A, E, I, O, U)
+Write the response without using any spaces between words
+Write the response without using the letter 'A'

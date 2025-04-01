@@ -1,6 +1,7 @@
 import random
 import re
 import os
+import sys
 import copy
 import nltk
 import numpy as np
@@ -18,6 +19,9 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 import jsonlines
 
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+from apis.res_generator import generate
 
 """Concat seed and augmented instructions for generation, then generation Eval funcs"""
 
@@ -52,3 +56,20 @@ Please TODO:
 please generate K verification functions for each sample by supervision model in eval_func_rft.jsonl
 
 '''
+jsonlines_file = f'./output/eval_func_rft_deepseek.jsonl'
+print('start at:')
+print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+for output in tqdm(outputs):
+    for i in tqdm(range(5)):
+        reasoning, answser = generate(prompt=output['prompt'], seed=i)
+        with jsonlines.open(jsonlines_file, mode='a') as writer:
+            writer.write({
+                'seed': i,
+                'prompt': output['prompt'],
+                'instruction': output['instruction'],
+                'reasoning': reasoning,
+                'answer': answser
+            })
+            
+print('finish at:')
+print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
