@@ -56,7 +56,7 @@ def fix_json_booleans(json_str):
 # from nltk import data
 # data.path.append('your nltk_data data path')
 
-path="./output/eval_func_volc_deepseek_results.jsonl"
+path="./output/eval_func_volc_deepseek_merged.jsonl"
 
 
 results = list(jsonlines.open(path))
@@ -69,15 +69,16 @@ js_parser = JsonOutputParser()
 
 collect_packages = []
 broken_res = []
-for result in tqdm(results):
-    res = result['response']['body']['choices'][0]['message']['content']
+for result in results:
+    res = result["responses"]
     eval_funcs, test_cases = [], []
-    try:
-        res_dict = js_parser.parse(fix_json_booleans(res))
-    except:
-        broken_res.append(res)
-        continue
-        
+    for each in res:
+        try:
+            res_dict = js_parser.parse(fix_json_booleans(each[0]['content']))
+        except:
+            broken_res.append(res)
+            continue
+            
     func = res_dict['func']
     
     if '\\n' in func:
@@ -91,9 +92,10 @@ for result in tqdm(results):
         if 'import' in line or 'download' in line or 'requests' in line:
             collect_packages.append(line)
 
+print(len(broken_res))
 print(list(set(collect_packages)))
 
-
+# TODO: >>>
 
 print("cross validation for functions and cases")
 
