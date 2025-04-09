@@ -29,8 +29,8 @@ random.seed(0)
 filter_results = []
 count = 0 
 filter_count=0
-with open('./sample_data/back_trans.jsonl', 'r') as file:
-    for i,line in enumerate(tqdm(file)):
+with open('./output/back_trans.jsonl', 'r') as file:
+    for i,line in enumerate(tqdm(file), total=len(file)):
         line = json.loads(line)
         back_instructions = line["back_instruction"]
         ori_ins = line['instruction']
@@ -41,7 +41,7 @@ with open('./sample_data/back_trans.jsonl', 'r') as file:
             import torch
             device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
             device = "cuda:0"
-            model_name = "your path to mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+            model_name = "/root/autodl-tmp/models/nli"
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             model = AutoModelForSequenceClassification.from_pretrained(model_name).to(device)
     
@@ -73,7 +73,7 @@ with open('./sample_data/back_trans.jsonl', 'r') as file:
 
 print("filter samples nums:",filter_count)
 
-with jsonlines.open("./output/back_trans_fliter.jsonl", "w") as f:
+with jsonlines.open("./output/back_trans_filter.jsonl", "w") as f:
     for each in filter_results:
         f.write(each)
 

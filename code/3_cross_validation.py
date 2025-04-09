@@ -49,6 +49,35 @@ def fix_json_booleans(json_str):
     
     return fixed_str
 
+def extract_instruction_content_regex(text):
+    """
+    Extracts the content between '\nHere is the instruction: ' and '\nPlease'
+    using regular expressions.
+
+    Args:
+        text: The input string containing the markers and the content.
+
+    Returns:
+        The extracted string content if a match is found, otherwise None.
+    """
+    # re.escape is used to handle potential special characters in markers
+    start_marker = re.escape("\nHere is the instruction: ")
+    end_marker = re.escape("\nPlease")
+
+    # The pattern:
+    # start_marker - matches the literal start marker
+    # (.*?)        - captures any character (.), zero or more times (*), non-greedily (?)
+    # end_marker   - matches the literal end marker
+    # re.DOTALL    - makes '.' match newline characters as well
+    pattern = f"{start_marker}(.*?){end_marker}"
+    match = re.search(pattern, text, re.DOTALL)
+
+    if match:
+        # Return the first captured group (the content inside the parentheses)
+        return match.group(1)
+    else:
+        return None
+
 # test gpt4
 
 # os.environ['NLTK_DATA'] = 'your nltk_data data path'
@@ -95,42 +124,42 @@ for result in results:
 print(len(broken_res))
 print(list(set(collect_packages)))
 
-# TODO: >>>
-
 print("cross validation for functions and cases")
 
 def timeout_handler(signum, frame):
     raise TimeoutError("Function execution timed out")
 
 filter_results = []
-for result in tqdm(results):
-    res = result['response']['body']['choices'][0]['message']['content']
+for idx, result in tqdm(enumerate(results), total=len(results)):
+    res = result["responses"]
+    # break
     eval_funcs, test_cases = [], []
-    
-    try:
-        res_dict = js_parser.parse(fix_json_booleans(res))
-    except:
-        continue
-    
-    # func rejection
-    func = res_dict['func']
-    func = func.strip()
-    func = '\n'.join([each for each in func.split('\n') if 'download' not in each and 'requests' not in each])
-    try:
-        exec(func)
-    except Exception:
-        continue
-    eval_funcs.append(func)
-
-    for each in res_dict['cases']:
+    for each in tqdm(res):
         try:
-            test_cases.append((each['input'], each['output']))
-        except KeyError:
-            print(each)
+            res_dict = js_parser.parse(fix_json_booleans(each[0]['content']))
+        except:
+            continue
+
+        # func rejection
+        func = res_dict['func']
+        func = func.strip()
+        func = '\n'.join([each for each in func.split('\n') if 'download' not in each and 'requests' not in each])
+        try:
+            exec(func)
+        except Exception:
+            continue
+        eval_funcs.append(func)
+
+        for each in res_dict['cases']:
+            try:
+                test_cases.append((each['input'], each['output']))
+            except KeyError:
+                print(each)
+                
     eval_funcs = list(set(eval_funcs))
     test_cases = list(map(json.loads, set(map(json.dumps, test_cases))))
-    # if len(eval_funcs) < 3 or len(test_cases) < 10:
-    #     continue
+    if len(eval_funcs) < 3 or len(test_cases) < 10:
+        continue
 
     filtered_test_cases = []
 
@@ -195,7 +224,8 @@ for result in tqdm(results):
         continue
 
     filter_results.append({
-        "instruction": result['instruction'],
+        "id": idx,
+        "instruction": extract_instruction_content_regex(result["prompt"][0]['content']),
         "eval_func": valid_funcs,
         "cases": filtered_test_cases
     })

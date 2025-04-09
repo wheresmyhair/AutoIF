@@ -19,6 +19,7 @@ from tqdm import tqdm
 import requests
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
+from datasets import load_dataset
 
 random.seed(0)
 
@@ -27,31 +28,44 @@ random.seed(0)
 
 filter_results=[]
 
-with jsonlines.open("./sample_data/back_trans.jsonl", "r") as f:
+with jsonlines.open("./output/back_trans_filter.jsonl", "r") as f:
     for each in f:
         filter_results.append(each)
 
 
-
-sft_data = list(jsonlines.open("your path to sharegot dataset"))
-queries = [each['messages'][1]['content'] for each in sft_data if each['source'] == 'en:sharegpt']
-
-queries = [each for each in queries if len(each) > 20 and len(each) < 300]
+data = load_dataset(
+    'wheresmyhair/ultrachat_autoif_promptonly', 
+    cache_dir='/root/autodl-tmp/datasets', 
+    split='train', 
+    num_proc=8
+)
 
 inputs = []
 for instruction in tqdm(filter_results):
-    ins_queries = random.sample(queries, 16) #拼16个
+    ins_queries = data.select(random.sample(range(len(data)), 16))
     for q in ins_queries:
-        prompt = f"Please answer the query strictly following the instruction.\n[instruction] {instruction['instruction']}\n[Query] {q}"
+        prompt = f"Please answer the query strictly following the instruction.\n[instruction] {instruction['instruction']}\n[Query] {q['query']}"
         item = copy.deepcopy(instruction)
         item['prompt'] = prompt
+        item['hf_id'] = q['id']
         inputs.append(item)
         # import pdb
         # pdb.set_trace()
 
-with jsonlines.open("./output/instruction_filtered_llama3_72b_query_sampled.jsonl", "w") as f:
+total_idx = 0
+with jsonlines.open("./output/ultrachat_query.jsonl", "w") as f:
     for each in inputs:
-        f.write(each)
+        for i in range(5):
+            output_final = {
+                "custom_id": f'{total_idx}_queryid_{each["hf_id"]}_instid_{each["id"]}_seed_{i}', 
+                "body": {
+                    "messages": [{"role": "user", "content": each['prompt']}],
+                    "max_tokens": 16000,
+                    "seed": i,
+                }
+            }
+            f.write(output_final)
+            total_idx += 1
 
 
 '''
