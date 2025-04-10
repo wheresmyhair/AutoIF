@@ -28,6 +28,6 @@ def check_jsonl_file(file_path):
 
 
 # 替换<YOUR_JSONL_FILE>为你的JSONL文件路径
-file_path = "/root/autodl-tmp/projs/AutoIF/output/eval_func_rft_volc_deepseek.jsonl"
+file_path = "/root/autodl-tmp/projs/AutoIF/output/query_need_quality_score_volc.jsonl"
 total_lines = check_jsonl_file(file_path)
 print(f"文件中有效JSON数据的行数为: {total_lines}")

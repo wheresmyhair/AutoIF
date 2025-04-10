@@ -1,9 +1,17 @@
 import json
 
+from datasets import Dataset
+
 data = []
 
 
-with open('./sample_data/query_score_filter.jsonl', 'r', encoding='utf-8') as file:
+with open('./output/query_score_filter.jsonl', 'r', encoding='utf-8') as file:
+    
+    for dat in file:
+        d = json.loads(dat)
+        data.append(d)
+        
+with open('./output_seed_0/query_score_filter.jsonl', 'r', encoding='utf-8') as file:
     
     for dat in file:
         d = json.loads(dat)
@@ -23,21 +31,16 @@ for item in data:
     else:
         inputs=item['query']+". "+item['instruction']+"."
 
-
-    new_item = {
-        "instruction": inputs,
-        "input": "",
-        "output": item['response'],
-        "history": []
-    }
+    response = item['response'].strip('\n')
+    messages = [
+        {"role": "user", "content": inputs},
+        {"role": "assistant", "content": response}
+    ]
 
 
-    processed_data.append(new_item)
+    processed_data.append({"messages": messages})
+
 print(len(processed_data))
 
-
-
-#Save the SFT data as llama factory format
-
-with open('./output/IF_sft_data.json', 'w', encoding='utf-8') as outfile:
-    json.dump(processed_data, outfile, indent=4, ensure_ascii=False)
+hf_data = Dataset.from_list(processed_data)
+hf_data.push_to_hub('wheresmyhair/ultrachat-autoif', split='train')

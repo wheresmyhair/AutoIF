@@ -27,7 +27,7 @@ random.seed(0)
 def timeout_handler(signum, frame):
     raise TimeoutError("Function execution timed out")
 
-results = list(jsonlines.open("./sample_data/query_rft.jsonl"))
+results = list(jsonlines.open("./output/6.5_output.jsonl"))
 
 filter_samples = []
 for result in tqdm(results):
@@ -39,48 +39,50 @@ for result in tqdm(results):
         exec(func, globals(), local_vars)
         eval_funcs.append(local_vars['evaluate'])
     
-    filter_responses = []
 
-    for response in result['gpt-answer']:
-        acc = []
-        for eval_func in eval_funcs:
-            try:
-                signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(5)
-                res = eval_func(response)
-            except Exception as e: 
-                print(e)
-                res = None
-            finally:
-                signal.alarm(0)
-            
-            if res is not None:
+    for qa_pair in result['queries'].items():
+        filter_responses = []
+        query = qa_pair[0]
+        responses = qa_pair[1]
+        for response in responses:
+            acc = []
+            for eval_func in eval_funcs:
                 try:
-                    acc.append(int(res))
-                except:
-                    continue
-        acc = np.mean(acc) if acc else 0
+                    signal.signal(signal.SIGALRM, timeout_handler)
+                    signal.alarm(5)
+                    res = eval_func(response)
+                except Exception as e: 
+                    print(e)
+                    res = None
+                finally:
+                    signal.alarm(0)
+                
+                if res is not None:
+                    try:
+                        acc.append(int(res))
+                    except:
+                        continue
+            acc = np.mean(acc) if acc else 0
 
 
-        if acc > 0:
-            filter_responses.append(response)
+            if acc > 0:
+                filter_responses.append(response)
 
-    for each in filter_responses:
-        try:
-            filter_samples.append({
-                'instruction': result['instruction'],
-                'query': re.findall(r'\[Query\](.*)$', result['prompt'], re.DOTALL)[0].strip(),
-                'response': each
-            })
-        except IndexError:
-            print(result['prompt'])
+        for each in filter_responses:
+            try:
+                filter_samples.append({
+                    'instruction': result['instruction'],
+                    'query': re.findall(r'\[Query\](.*)$', query, re.DOTALL)[0].strip(),
+                    'response': each
+                })
+            except IndexError:
+                print(result['prompt'])
 
 
 print(len(eval_funcs))
 print(len(filter_samples))
 filter_samples = list(map(json.loads, set(map(json.dumps, filter_samples))))
 print(len(filter_samples))
-
 
 # Save the data with out score consistency
 with jsonlines.open("./output/query_wo_score.jsonl", "w") as f:
@@ -96,18 +98,30 @@ You need to judge whether the response answers the query. Please first provide a
 Scoring 0 means the response is totally unrelated to the query, while scoring 10 means the response is helpful and highly related to the query.
 Please only provide a score in the format `Score: {{score}}` without any other contents at the last line."""
 
-for each in filter_samples:
+for idx, each in enumerate(filter_samples):
     each['prompt'] = prompt_template.format(
         instruction=each['instruction'],
         query=each['query'],
         response=each['response']
     )
+    each['id'] = str(idx)
 
 # Save the data with out scoring prompt
 with jsonlines.open("./output/query_need_quality_score.jsonl", "w") as f:
     for each in filter_samples:
         f.write(each)
 
+
+with jsonlines.open("./output/query_need_quality_score_volc.jsonl", "w") as f:
+    for each in filter_samples:
+        api_query = {
+            "custom_id": each['id'], 
+            "body": {
+                "messages": [{"role": "user", "content": each['prompt']}],
+                "max_tokens": 16000,
+            }
+        }
+        f.write(api_query)
 
 '''
 Please TODO:

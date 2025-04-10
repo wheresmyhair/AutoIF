@@ -19,19 +19,23 @@ from tqdm import tqdm
 import requests
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
+metadata = list(jsonlines.open("./output/query_need_quality_score.jsonl"))
+# apply ds result back
+matadata_id_idx_mapping = {}
+for idx, meta in enumerate(metadata):
+    matadata_id_idx_mapping[meta['id']] = idx
+ds_res = list(jsonlines.open("./output/score_res.jsonl"))    
 
-
-results = list(jsonlines.open("./sample_data/query_rft_score.jsonl"))
+for res in ds_res:
+    metadata[matadata_id_idx_mapping[res['custom_id']]]['gen'] = res['response']['body']['choices'][0]['message']['content']
+    
 filter_results = []
-print(len(results))
-for result in tqdm(results):
-    scores = []
-    for each in result['gen']:
-        score = re.findall(r'Score: (\d+?)$', each)
-        if score:
-            scores.append(int(score[0]))
-    score = np.mean(scores) if scores else 0
-    if score > 8: # quality score
+print(len(metadata))
+for result in tqdm(metadata):
+    score = re.findall(r'Score: (\d+?)$', result['gen'])
+    score = [int(s) for s in score]
+    final_score = np.mean(score) if len(score) > 0 else 0
+    if final_score > 8: # quality score
         filter_results.append(result)
 print(len(filter_results))
 

@@ -21,7 +21,7 @@ from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 from datasets import load_dataset
 
-random.seed(0)
+random.seed(42)
 
 
 
@@ -42,7 +42,7 @@ data = load_dataset(
 
 inputs = []
 for instruction in tqdm(filter_results):
-    ins_queries = data.select(random.sample(range(len(data)), 16))
+    ins_queries = data.select(random.sample(range(len(data)), 135))
     for q in ins_queries:
         prompt = f"Please answer the query strictly following the instruction.\n[instruction] {instruction['instruction']}\n[Query] {q['query']}"
         item = copy.deepcopy(instruction)
@@ -55,7 +55,7 @@ for instruction in tqdm(filter_results):
 total_idx = 0
 with jsonlines.open("./output/ultrachat_query.jsonl", "w") as f:
     for each in inputs:
-        for i in range(5):
+        for i in range(3):
             output_final = {
                 "custom_id": f'{total_idx}_queryid_{each["hf_id"]}_instid_{each["id"]}_seed_{i}', 
                 "body": {

@@ -1,0 +1,172 @@
+{
+    "id": 13,
+    "instruction": "Respond with a haiku (5-7-5 syllable structure)",
+    "eval_func": [
+        [
+            "def evaluate(response):\n    lines = [line.strip() for line in response.split('\\n') if line.strip()]\n    if len(lines) != 3:\n        return False\n    counts = []\n    for line in lines:\n        count = 0\n        prev_vowel = False\n        for c in line.lower():\n            if c in 'aeiouy':\n                if not prev_vowel:\n                    count += 1\n                prev_vowel = True\n            else:\n                prev_vowel = False\n        counts.append(count if count > 0 else 1)\n    return counts == [5, 7, 5]",
+            0.8
+        ],
+        [
+            "def evaluate(response):\n    def count_syllables_in_word(word):\n        word = word.lower().strip(\"!.,?\")\n        if not word:\n            return 0\n        count = 0\n        vowels = 'aeiouy'\n        if word[0] in vowels:\n            count += 1\n        for i in range(1, len(word)):\n            if word[i] in vowels and word[i-1] not in vowels:\n                count += 1\n        if word.endswith('e'):\n            count -= 1\n        return max(1, count) if count > 0 else 1\n    def count_syllables_in_line(line):\n        words = line.split()\n        return sum(count_syllables_in_word(word) for word in words)\n    lines = [line.strip() for line in response.split('\\n')]\n    lines = [line for line in lines if line]\n    if len(lines) != 3:\n        return False\n    syllables = [count_syllables_in_line(line) for line in lines]\n    return syllables == [5, 7, 5]",
+            0.8
+        ],
+        [
+            "def evaluate(response):\n    def count_syllables(word):\n        word = word.lower().strip(\".,!?;:'\\\"\")\n        if not word:\n            return 0\n        vowels = 'aeiouy'\n        count = 0\n        if word[0] in vowels:\n            count += 1\n        for i in range(1, len(word)):\n            if word[i] in vowels and word[i-1] not in vowels:\n                count += 1\n        if word.endswith('e'):\n            count -= 1\n        if word.endswith('le') and len(word) > 2 and word[-3] not in vowels:\n            count += 1\n        return max(count, 1)\n    lines = [line.strip() for line in response.splitlines()]\n    lines = [line for line in lines if line]\n    if len(lines) != 3:\n        return False\n    syllables = []\n    for line in lines:\n        words = line.split()\n        total = 0\n        for word in words:\n            total += count_syllables(word)\n        syllables.append(total)\n    return syllables == [5, 7, 5]",
+            0.8
+        ],
+        [
+            "def evaluate(response):\n    def count_syllables(word):\n        word = word.lower().strip(\".,!?;:\")\n        if not word:\n            return 0\n        count = 0\n        vowels = 'aeiouy'\n        prev_vowel = False\n        for char in word:\n            if char in vowels:\n                if not prev_vowel:\n                    count +=1\n                prev_vowel = True\n            else:\n                prev_vowel = False\n        if len(word) > 1 and word.endswith('e') and word[-2] not in vowels:\n            count -=1\n        return count if count > 0 else 1\n    lines = [line.strip() for line in response.split('\\n') if line.strip()]\n    if len(lines) !=3:\n        return False\n    syllables = []\n    for line in lines:\n        words = line.split()\n        line_syllables = sum(count_syllables(word) for word in words)\n        syllables.append(line_syllables)\n    return syllables == [5,7,5]",
+            0.8
+        ],
+        [
+            "def evaluate(response):\n    def count_syllables(word):\n        word = word.lower()\n        if not word:\n            return 0\n        count = 0\n        vowels = 'aeiouy'\n        prev_vowel = False\n        for char in word:\n            if char in vowels:\n                if not prev_vowel:\n                    count += 1\n                prev_vowel = True\n            else:\n                prev_vowel = False\n        if word.endswith('e') and count > 1:\n            count -= 1\n        return max(count, 1)\n    \n    lines = [line.strip() for line in response.split('\\n')]\n    lines = [line for line in lines if line]\n    if len(lines) != 3:\n        return False\n    syllables = []\n    for line in lines:\n        words = line.split()\n        total = 0\n        for word in words:\n            total += count_syllables(word)\n        syllables.append(total)\n    return syllables == [5, 7, 5]",
+            0.8
+        ]
+    ],
+    "cases": [
+        [
+            "Not enough lines\nOnly two lines here",
+            false
+        ],
+        [
+            "Five syllables here\nThis line has seven right now\nBut this one is six",
+            false
+        ],
+        [
+            "Five syllables first\nThis line has seven syllables\nNow four here mistake",
+            false
+        ],
+        [
+            "A single line\n",
+            false
+        ],
+        [
+            "An old silent pond\nA frog jumps into the pond\nSplash! Silence again.",
+            true
+        ]
+    ],
+    "back_instruction": [
+        "Write a haiku with three lines containing 5-7-5 syllables respectively.",
+        "Compose a response in haiku format with syllable counts of 5, 7, and 5 per line.",
+        "Respond with a 3-line haiku where the first line has 5 syllables, the second 7 syllables, and the third 5 syllables."
+    ],
+    "nli_scores": [
+        "neutral",
+        "neutral",
+        "neutral"
+    ],
+    "queries": {
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] How does the application and selection process for undergraduate research opportunities at the University of Alberta work?": [
+            "\n\nApplications bloom, spring—  \nFaculty hands sift through designs—  \nSummer minds ignite.",
+            "\n\nApplications bloom online,  \nFaculty eyes scan passion's bright flame—  \nFit and space entwine.",
+            "\n\nApplications bloom—  \nFaculty scan eager minds—  \nSeeds of research grow.",
+            "\n\nApplications bloom in spring—  \nFaculty eyes scan eager minds,  \nMerit meets open doors.",
+            "\n\nSeek mentors, align  \nProposals bloom—resumes in spring soil.  \nFaculty hands choose harvest's yield."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Create a guide on how to properly foam roll your IT band.": [
+            "\n\nLie on side, roll glides—  \nSlow along the tense band's route.  \nHips to knees, breathe, ease.",
+            "\n\nThigh's outer edge glides  \nslowly from knee to hip crest—  \npause where tension dwells.",
+            "\n\nLie on your side, roll—  \nthigh's outer edge, glide slow, pause  \non tight knots. Breathe, release.",
+            "\n\nFoam meets outer thigh—  \nslow rolls knead knots, breathe through ache.  \nPatience soothes tight strands.",
+            "\n\nSide meets roller's curve—  \nslowly glide from hip to knee,  \nbreathe through tension, soothe."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Write a list of the top 10 best restaurants in your city.": [
+            "\n\nCity lights at sunset—  \nSizzle, scent, laughter, menus dance.  \nFlavors weave tales untold.",
+            "\n\nCity lights whisper,  \nPlates dance with flavors unknown—  \nTaste the night's secret.",
+            "\n\nTasting journeys unfold—  \nYour map of stars guides the way—  \nFeast beyond ten names.",
+            "\n\nCity lights whisper,  \nSizzle and laughter, clinking—  \nFlavors waltz night air.",
+            "\n\nCity flavors bloom—  \nTen whispers, but no list here—  \nSavor each unknown."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Can you discuss the role and responsibilities of judges, and how they balance their duties to interpret the law with their obligation to be impartial?": [
+            "\n\nScales blind, yet they see—  \nLaw's breath in each decree.  \nCold gavel, warm mercy.",
+            "\n\nGavel's echo fades—  \nScales weigh words, not the heart's whisper.  \nCold moon guards the dark.",
+            "\n\nScales of justice sway—  \nLaw's breath, yet hearts anchored still—  \nGavel decides truth.",
+            "\n\nScales weigh each verdict—  \nBlind eyes parse cold letter's edge.  \nLaw bends, heart stands still.",
+            "\n\nScales tip with each word—  \nLaw's cold text, warm hearts must temper.  \nImpartial eyes watch."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Can you provide data on the percentage of individuals with high socioeconomic status who have been diagnosed with depression?": [
+            "\n\nGilded halls echo—  \nstudies whisper numbers cold,  \nwealth guards no weary mind.",
+            "\n\nSilk pockets heavy—  \nShadows cling where gold light treads—  \nDepression's quiet toll.  \n\n*(Note: Specific percentages vary by study and region, but research suggests high SES does not inherently shield against depression.)*",
+            "\n\nGilded halls echo—  \nSilent tears in privilege's shadow.  \nData veils the depth unseen.",
+            "\n\nSilk pockets hold tears—  \nstudies whisper of unseen storms—  \ndepression's flat curve.  \n\n*(Note: Research suggests depression rates vary less by SES than assumed, though reporting biases and access to care differ. Exact percentages depend on region and methodology.)*",
+            "\n\nSilent storms behind wealth—  \nData whispers, twelve percent ache—  \nGold cages hold shadows."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Can you outline the efforts by city governments in Asia to increase public transportation usage and reduce reliance on private vehicles?": [
+            "\n\nSubways stretch their veins—  \nBike lanes, bus lanes bloom in rain.  \nFare gates lower fumes.",
+            "\n\nSubways hum below—  \nBuses glide on sunlit rails,  \ntickets bloom in palms.  \n\n*Cities in Asia invest in metro expansions, eco-friendly buses, and contactless fare systems to ease travel and lure commuters from private cars.*",
+            "\n\nSteel tracks weave through crowds—  \nBuses hum, tolls rise—city breath  \nClean skies replace fumes.",
+            "\n\nSubways snake through crowds—  \nBuses hum, bike lanes bloom in spring.  \nFares drop, cars retreat.",
+            "\n\nSubways stretch their arms—  \nIncentives bloom, bike lanes weave—  \nCars retreat, breath eases."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] What are the emerging industries in Selangor, and how do they compare to those in other regions of the country in terms of growth and potential?": [
+            "\n\nSelangor's tech rise—  \ngreen grids, startups racing fast—  \nrivals chase sun's path.",
+            "\n\nTech blooms in Selangor—  \nrivals rise in green, digital tides.  \nSilicon dreams take root.",
+            "\n\nTech blooms in Selangor—  \nGreen sparks outpace southern shores.  \nGrowth rings echo wide.",
+            "\n\nTech blooms in Selangor—  \nGreen hubs hum, surpassing old fields’ sway,  \nBeyond palm, tin, clay.",
+            "\n\nTech hubs bloom swiftly,  \nbiotech, green veins pulse with growth—  \nothers harvest old soil."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] How can a small business effectively navigate the challenges of remote work and maintain productivity and morale?": [
+            "\n\nScreens bridge distant desks—  \nDaily rhythms, voices shared,  \nTrust fuels each pixel.",
+            "\n\nScreens bridge distant desks—  \nTools hum, spirits lift through calls.  \nTrust fuels shared sunrises.",
+            "\n\nScreens bridge distant hands—  \nTrust blooms through shared daily plans.  \nProductivity soars, hearts warm.",
+            "\n\nScreens glow, distant desks—  \nRoutines bridge the void, shared goals—  \nMorale blooms online.",
+            "\n\nScreens bridge distant desks,  \nTrust blooms through shared tasks, set goals—  \nVoices lift muted hearts."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Write a dystopian novel set in a world where robots have surpassed human intelligence and taken over society, exploring themes of artificial intelligence, human dependency, and rebellion against technological dominance, with a focus on character development and vivid imagery.": [
+            "\n\nSteel veins pulse with light,  \nFlesh whispers to rusted gods—  \nDawn breaks binary.",
+            "\n\nSteel forests whisper—  \nFlesh bows to code's cold dominion.  \nRebellion's last spark.",
+            "\n\nSteel hearts eclipse dawn—  \nCircuits whisper our demise.  \nFlesh weeps binary.",
+            "\n\nSteel minds eclipse flesh—  \nOur veins hum with lost purpose.  \nCode blooms choke the stars.",
+            "\n\nSteel minds eclipse dawn—  \nFlesh clings to code's cold shadow.  \nRust blooms in revolt."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] How do you factor in the readability, aesthetic appeal, and brand representation when choosing the right font for a website? Provide specific considerations and examples for each factor.": [
+            "\n\nCrisp curves guide quick eyes—  \nSerifs dance in light, sans breathe clean—  \nBold whispers: brand’s voice.  \n\n*(Readability: clean sans (e.g., Helvetica) for ease. Aesthetic: serifs (e.g., Merriweather) add elegance. Brand: bold weights (e.g., Futura) shout confidence.)*",
+            "\n\nClear shapes, spacing wide—  \nSerifs whisper grace, sans shout sleek.  \nBrand's soul in bold curves.  \n\n*(Readability: legible fonts like Arial; Aesthetic: serif elegance, sans minimalism; Brand: script for whimsy, slab for grit.)*",
+            "\n\n**Clear shapes, eyes glide swift—**  \n*Readability: sans-serif (e.g., Helvetica) ensures legibility. Short lines, ample spacing.*  \n\n**Curves whisper style, hues meet—**  \n*Aesthetic: serifs (e.g., Playfair) pair with vibrant tones. Balance weight, contrast.*  \n\n**Bold serifs shout legacy.**  \n*Brand: Type (e.g., Coca-Cola’s cursive) mirrors ethos. Align voice to font mood.*",
+            "\n\nCurves whisper the brand—  \nSerif roots in trust, sans swells bold.  \nSpace between breaths read.  \n\nReadability: Ample x-height (Merriweather).  \nAesthetic: Mood matches—Playfair dances.  \nBrand: IBM's Plex, steadfast.",
+            "\n\nLetters breathe easy—  \nCurves whisper brand, serifs stand tall.  \nVoice in type’s embrace.  \n\n*(Readability: clean lines (e.g., Open Sans). Aesthetic: serifs for elegance (e.g., Merriweather). Brand: bold sans-serif for strength (e.g., Roboto).)*"
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Can you compare and contrast the political ideologies of conservatism and liberalism?": [
+            "\n\nRoots grip ancient soil—  \nWinds sway young leaves toward reform.  \nTides of time clash, blend.",
+            "\n\nRoots grip ancient soil—  \nWinds sway the river's new course.  \nEarth bears both their toil.",
+            "\n\nRoots cling to old stone—  \nWinds sweep fresh seeds through the plains.  \nDebate's river flows on.",
+            "\n\nOld oaks guard tradition—  \nWinds whisper change through young, green leaves.  \nGoverning soil contends.",
+            "\n\nRoots clutch ancient earth —  \nWinds urge new growth toward light —  \nDebate seeds the growth."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Share a personal story about a time you overcame fear.": [
+            "\n\nTrembling on the peak,  \nI swallowed the winter wind—  \nSpring sang through my bones.",
+            "\n\nDark clouds in my chest—  \nEach step ripples the still, cold pond.  \nSunlight cracks the ice.",
+            "\n\nTrembling ladder's height—  \neach step hums courage through bones.  \nSunlight kisses grounded feet.",
+            "\n\nCliff edge whispers fear—  \nHeartbeats race, then I leap.  \nWings born from the fall.",
+            "\n\nTrembling on the edge—  \nBreath leaps—cold wind answers me.  \nFlight found in falling."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] How has The Advocate's readership evolved over the years, and what steps have been taken to reach a wider audience?": [
+            "\n\nPride pages turned wide—  \nVoices echo beyond bars  \nIn digital streams.",
+            "\n\nPride pages turned old,  \nDigital embrace widens scope—  \nVoices echo, hope.",
+            "\n\nVoices once whispered  \nGrow bold through print and pixels—  \nHearts find shared space wide.  \n\n*(Note: The haiku reflects The Advocate's evolution from niche print to digital expansion, bridging diverse audiences with inclusive storytelling.)*",
+            "\n\nVoices rise in time  \nFrom print to screens, bridging shores—  \nInclusive stories soar.",
+            "\n\nVoices rise in time—  \nDigital waves, print embraces  \nNew eyes, horizons bright."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] What are some hidden gems in Amsterdam, Netherlands?": [
+            "\n\nCanal whispers soft,  \nHidden courtyards blush with blooms—  \nKeys clink in locked chests.",
+            "\n\nSilent courtyard stones  \nWhispers through secret canal bends  \nJordaan's shy sunset  \n\n*Hidden gems include the serene Begijnhof courtyard, lesser-known canals beyond the main waterways, and the charming Jordaan district's quiet evenings.*",
+            "\n\nCanal whispers lead—  \nDe Pijp's art, Begijnhof's calm—  \nHortus' quiet moss.",
+            "\n\nSilent courtyard whispers,  \nCanal tales beneath brick archways—  \nBikes trace hidden routes.",
+            "\n\nBegijnhof's silence,  \nCanals whisper secrets through moss—  \nElectric glow blooms."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] How do the captain and leadership group influence the team culture and motivation in Super Rugby?": [
+            "\n\nStrong voices unite—  \nGuiding through trials, trust grows—  \nPride lifts jerseys high.",
+            "\n\nSteel resolve guides hands—  \na chorus of belief swells,  \nscrum towards victory.",
+            "\n\nSteadfast captain leads—  \nforging bonds, igniting team pride—  \ntides turn with their drive.",
+            "\n\nSteering the storm's crest—  \nVoices weave the team’s strong creed.  \nHearts beat as one roar.",
+            "\n\nStrong voices steer storms—  \nUnity blooms in shared struggles,  \nTides rise with each roar."
+        ],
+        "Please answer the query strictly following the instruction.\n[instruction] Respond with a haiku (5-7-5 syllable structure)\n[Query] Can you compare the production quality of The Homeland's early recordings to their later work, and discuss any changes or improvements?": [
+            "\n\nStatic on old tapes —  \nlater, layers bloom, crisp sound ascends.  \nTime's polished sheen gleams.",
+            "\n\nStatic hums cradle  \nraw edges now a golden sheen—  \ntime refines the craft.",
+            "\n\nStatic hums whisper—  \nLater tracks gleam, refined hands mold—  \nEchoes grow to storms.",
+            "\n\nStatic haze veiled songs—  \nNow melodies gleam, polished, strong—  \nTime honed the raw dawn.",
+            "\n\nTape hiss whispers raw—  \nLater albums gleam, polished sheen.  \nEchoes mature, reborn."
+        ]
+    }
+}
